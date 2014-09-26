@@ -16,8 +16,7 @@ To get a local copy, use:
 
 Pre-requisites:
 
-<code>maven 3.0.3+
-
+<code>maven 3.0.3+<br>
 JDK 1.6+</code>
 
 To run unit tests:
