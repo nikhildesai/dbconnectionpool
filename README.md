@@ -16,8 +16,8 @@ git clone https://github.com/nikhildesai/dbconnectionpool.git
 
 Pre-requisites:
 
-maven 3.0.3+
-JDK 1.6+
+<code>maven 3.0.3+
+JDK 1.6+</code>
 
 To run unit tests:
 
@@ -25,4 +25,4 @@ To run unit tests:
 
 If you want to import the project in eclipse, you can use:
 
-mvn eclipse:clean eclipse:eclipse
+<code>mvn eclipse:clean eclipse:eclipse</code>
