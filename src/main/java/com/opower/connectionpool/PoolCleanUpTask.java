@@ -21,6 +21,10 @@ public class PoolCleanUpTask {
      *            the period between successive executions in seconds
      */
     public void scheduleRecycle(final ConnectionPool connectionPool, final long timePeriodSeconds) {
+        if (connectionPool == null || timePeriodSeconds <= 0) {
+            throw new IllegalArgumentException("Illegal arguments passed");
+        }
+
         final Runnable poolCleanUpRunnable = new Runnable() {
             public void run() {
                 logger.log(Level.DEBUG, "Recycling available connections ...");
@@ -28,6 +32,7 @@ public class PoolCleanUpTask {
                 logger.log(Level.DEBUG, "Done recycling available connections");
             }
         };
-        scheduler.scheduleAtFixedRate(poolCleanUpRunnable, 10, timePeriodSeconds, SECONDS);
+        scheduler.scheduleAtFixedRate(poolCleanUpRunnable, 1, timePeriodSeconds, SECONDS);
+        logger.log(Level.INFO, "Connection pool clean-up scheduled to run every " + timePeriodSeconds + " seconds.");
     }
 }

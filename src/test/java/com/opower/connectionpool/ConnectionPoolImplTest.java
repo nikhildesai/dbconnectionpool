@@ -17,7 +17,6 @@ public class ConnectionPoolImplTest {
     private ConnectionPoolImpl connectionPool;
 
     // -------------- Constructor tests --------------------
-
     @Test
     public void test_constructor_valid_args() throws SQLException {
         new ConnectionPoolImpl("jdbc:hsqldb:mem:aname", "sa", "", 10, 2);
@@ -39,7 +38,6 @@ public class ConnectionPoolImplTest {
     }
 
     // -------------- Tests for ConnectionPoolImpl.getConnection() --------------------
-
     @Test
     public void testGetConnection_create_new_connection() throws SQLException {
         connectionPool = new ConnectionPoolImpl("jdbc:hsqldb:mem:aname", "sa", "", 1, 0);
@@ -79,34 +77,21 @@ public class ConnectionPoolImplTest {
     }
 
     @Test
-    public void testGetConnection_two_threads() throws SQLException {
+    public void testGetConnection_multiple_threads() throws SQLException {
         final ConnectionPool connectionPool = new ConnectionPoolImpl("jdbc:hsqldb:mem:aname", "sa", "", 20, 20);
-
-        new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
+            new Runnable() {
+                @Override
+                public void run() {
                     try {
                         connectionPool.getConnection();
                     } catch (SQLException e) {
                         Assert.fail();
                     }
-                }
-            }
-        }.run();
 
-        new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < 10; i++) {
-                    try {
-                        connectionPool.getConnection();
-                    } catch (SQLException e) {
-                        Assert.fail();
-                    }
                 }
-            }
-        }.run();
+            }.run();
+        }
     }
 
     // -------------- Tests for ConnectionPoolImpl.releaseConnection() --------------------
@@ -123,7 +108,7 @@ public class ConnectionPoolImplTest {
     }
 
     @Test
-    public void testReleaseConnection_connection__available_then_released() throws SQLException {
+    public void testReleaseConnection_connection_available_then_released() throws SQLException {
         connectionPool = new ConnectionPoolImpl("jdbc:hsqldb:mem:aname", "sa", "", 1, 1);
         connectionPool.releaseConnection(connectionPool.getConnection());
     }

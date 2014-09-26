@@ -11,7 +11,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 public class ConnectionPoolImpl implements ConnectionPool {
-    private Logger logger;
+    private Logger logger = Logger.getLogger(ConnectionPoolImpl.class);;
     private String url;
     private String username;
     private String password;
@@ -47,7 +47,6 @@ public class ConnectionPoolImpl implements ConnectionPool {
      */
     public ConnectionPoolImpl(String url, String username, String password, int maxPoolSize, int initialPoolSize)
             throws SQLException {
-        logger = Logger.getLogger(ConnectionPoolImpl.class);
 
         validate(url, username, password, maxPoolSize, initialPoolSize);
 
@@ -57,7 +56,11 @@ public class ConnectionPoolImpl implements ConnectionPool {
         this.maxPoolSize = maxPoolSize;
         currentPoolSize = 0;
 
-        // using a CopyOnWriteArrayList so that we can avoid using synchronized methods
+        // using a CopyOnWriteArrayList
+        // (http://docs.oracle.com/javase/6/docs/api/java/util/concurrent/CopyOnWriteArrayList.html) because it provides
+        // random access and so that we can avoid using 'synchronized'. The assumption is that the size of the list will
+        // be small. The alternative is to use an ArrayList and
+        // use 'synchronized' for operations adding or removing list items
         availableConnections = new CopyOnWriteArrayList<Connection>();
 
         allConnections = new ArrayList<Connection>();
@@ -66,11 +69,11 @@ public class ConnectionPoolImpl implements ConnectionPool {
             availableConnections.add(createNewConnection());
         }
 
-        logger.log(Level.INFO, "Connection pool initialized");
-
-        // start task to clean up available connections
+        // start task to clean up connections that are invalid or closed in the pool of available connections
         PoolCleanUpTask cleanUpTask = new PoolCleanUpTask();
         cleanUpTask.scheduleRecycle(this, 60l);
+
+        logger.log(Level.INFO, "Connection pool initialized");
     }
 
     private void validate(String url, String username, String password, int maxPoolSize, int initialPoolSize) {
@@ -86,7 +89,6 @@ public class ConnectionPoolImpl implements ConnectionPool {
             throw new IllegalArgumentException(
                     "initialPoolSize must be a positive integer less than or equal to maxPoolSize");
         }
-
     }
 
     @Override
@@ -104,12 +106,11 @@ public class ConnectionPoolImpl implements ConnectionPool {
 
     private Connection createNewConnection() throws SQLException {
         checkIfMaxPoolSizeReached();
-
         try {
             final Connection connection = DriverManager.getConnection(url, username, password);
             currentPoolSize++;
             allConnections.add(connection);
-            logger.log(Level.DEBUG, "currentPoolSize = " + currentPoolSize);
+            logger.log(Level.DEBUG, "Created new connection. currentPoolSize = " + currentPoolSize);
             return connection;
         } catch (SQLException e) {
             logger.log(Level.ERROR, "Exception while creating a new connection using DriverManager " + e);
@@ -145,15 +146,6 @@ public class ConnectionPoolImpl implements ConnectionPool {
         logger.log(Level.DEBUG, "Released connection added back to the pool");
     }
 
-    @Override
-    public String toString() {
-        StringBuffer stringBuffer = new StringBuffer("Connection Pool: ");
-        stringBuffer.append(" maxPoolSize= ").append(maxPoolSize);
-        stringBuffer.append(" currentPoolSize= ").append(currentPoolSize);
-        stringBuffer.append(" dburl= ").append(url);
-        return stringBuffer.toString();
-    }
-
     /**
      * Iterates over the list of available connections and checks if they are still valid
      * 
@@ -174,5 +166,15 @@ public class ConnectionPoolImpl implements ConnectionPool {
         availableConnections.removeAll(unusableConnections);
         allConnections.removeAll(unusableConnections);
         currentPoolSize = currentPoolSize - unusableConnections.size();
+        logger.log(Level.INFO, unusableConnections.size() + " connections recycled");
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer stringBuffer = new StringBuffer("Connection Pool: ");
+        stringBuffer.append(" maxPoolSize= ").append(maxPoolSize);
+        stringBuffer.append(" currentPoolSize= ").append(currentPoolSize);
+        stringBuffer.append(" dburl= ").append(url);
+        return stringBuffer.toString();
     }
 }
