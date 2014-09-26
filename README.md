@@ -11,8 +11,12 @@ This repo is an implementation of a DB Connection pool. Here are a few details a
 - When a connection pool is created, it creates an instance of PoolCleanUpTask that schedules execution of ConnectionPoolImpl.recycleUnusableConnections() which recycles unusable connections in the pool
 
 To get a local copy, use:
-git clone 
+git clone https://github.com/nikhildesai/dbconnectionpool.git
 
-Command to run unit tests:
+Pre-requisites:
+maven 3.0.3+
+JDK 1.6+
+
+To run unit tests:
 
 mvn clean test
