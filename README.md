@@ -22,3 +22,7 @@ JDK 1.6+
 To run unit tests:
 
 mvn clean test
+
+If you want to import the project in eclipse, you can use:
+
+mvn eclipse:clean eclipse:eclipse
