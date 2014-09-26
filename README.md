@@ -21,7 +21,7 @@ JDK 1.6+
 
 To run unit tests:
 
-mvn clean test
+<code>mvn clean test</code>
 
 If you want to import the project in eclipse, you can use:
 
