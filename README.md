@@ -19,10 +19,14 @@ Pre-requisites:
 <code>maven 3.0.3+<br>
 JDK 1.6+</code>
 
-To run unit tests:
+To compile the code, go to the project root directory and use:
+
+<code>mvn clean compile</code>
+
+To run unit tests, go to the project root directory and use:
 
 <code>mvn clean test</code>
 
-If you want to import the project in eclipse, you can use:
+If you want to import the project in eclipse, you can use the following to generate eclipse-related files:
 
 <code>mvn eclipse:clean eclipse:eclipse</code>
